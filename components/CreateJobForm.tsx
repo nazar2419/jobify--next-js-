@@ -1,5 +1,4 @@
 'use client'
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -15,8 +14,38 @@ import { Form } from '@/components/ui/form';
 
 import { CustomFormField, CustomFormSelect } from "./FormComponents";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createJobAction } from "@/utils/action";
+import { useToast } from "./ui/use-toast";
+import { useRouter } from "next/navigation";
+
+
 
 function CreateJobForm() {
+  // logic
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const router = useRouter();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (values: createdAndEditJobType ) => createJobAction(values),
+    onSuccess: (data) => {
+      if (!data) {
+        toast({
+          description: 'there was an error',
+        });
+        return;
+      }
+      toast({ description: 'job created'});
+      queryClient.invalidateQueries({ queryKey: ['jobs']});
+      queryClient.invalidateQueries({ queryKey: ['jobs']});
+      queryClient.invalidateQueries({ queryKey: ['jobs']});
+
+      router.push('/jobs');
+      // form.reset();
+
+    }
+  })
+
     // 1.Define your form.
     const form = useForm<createdAndEditJobType>({
         resolver: zodResolver(createdAndEditJobSchema),
@@ -31,9 +60,7 @@ function CreateJobForm() {
 
     // 2. Define a submit handler.
     function onSubmit(values: createdAndEditJobType) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values);
+        mutate(values);
     }
   return (
     <Form {...form}>
@@ -62,8 +89,8 @@ function CreateJobForm() {
 									labelText="job mode"
 									items={Object.values(JobMode)}
 								/>
-							  <Button type="submit" className="self-end capitalize">
-									Submit
+							  <Button type="submit" className="self-end capitalize" disabled={isPending}>
+									{isPending ? 'loading...' : 'create job'}
 								</Button>
             </div>
         </form>     
