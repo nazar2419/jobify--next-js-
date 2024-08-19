@@ -1,4 +1,11 @@
+import { Skeleton } from "@/components/ui/skeleton";
 function loading() {
-    return <h2 className='text-xl font-medium capitalize'>loading...</h2>;
+    return ( 
+    <div className='text-xl font-medium capitalize'>
+        <Skeleton className="h-10" />
+        <Skeleton className="h-10" />
+        <Skeleton className="h-10" />
+    </div>
+    )
 }
-export default loading
+export default loading;
